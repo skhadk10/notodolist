@@ -1,37 +1,34 @@
 import React from 'react'
-import {Table } from 'react-bootstrap';
-export const ToDoList = () => {
+import {Card,Button,Table,InputGroup,FormControl} from 'react-bootstrap';
+
+export const TaskLists = ({taskLists,handOnMarkAsNotToDo,handleonChange1}) => {
     return (
-        <div>
-            <Table striped bordered hover>
+        <>
+        <h2>Task Lists</h2>
+      <Table striped bordered hover size="lg">
   <thead>
     <tr>
-      <th>#</th>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>Username</th>
+      <th>check</th>
+      <th>Task</th>
+      <th>Hours</th>
+      <th>Action</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>1</td>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td colSpan="2">Larry the Bird</td>
-      <td>@twitter</td>
-    </tr>
+      {taskLists.map((row,i)=>
+    <tr key={i}>
+      <td> 
+      <input type="checkbox" defaultValue={i} onChange={handleonChange1}  />{""}
+    </td>
+      <td>{row?.title}</td>
+      <td>{row?.hr}</td>
+      <td><button onClick={() => handOnMarkAsNotToDo(i)}>Mark as not to</button></td>
+    
+    </tr>)}
+  
+    
   </tbody>
 </Table>
-        </div>
+</>
     )
 }

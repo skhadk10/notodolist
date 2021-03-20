@@ -1,38 +1,42 @@
-import React ,{useState} from 'react'
-import { Form, Button} from 'react-bootstrap';
+import React,{useState} from 'react'
+import {Row,Col,Form,Button} from 'react-bootstrap'
 
-const initailTasklist=[
+const initialFormData ={
+    title:"",
+        hr:0,
+}
+export const AddForm = ({handleOnAddTask}) => {
+    const [task, setTask] = useState(initialFormData)
+
+    const handleOnChange = e =>
     {
-        
-        title:"sanish",
-        hrs:0
+
+const {name,value}=e.target;
+setTask({...task,[name]:value,}
+)
     }
-]
+    const handleOnSubmit =e =>{
+        e.preventDefault();
 
-export const AddForm = () => {
-
-
-    const [taskList, setssettaskList] = useState(initailTasklist);
-
-    const initailInputValue= e=>{
-        const[name,value]= e.target
-        setssettaskList([...taskList,title:hrs])
+        handleOnAddTask(task);
     }
-
     return (
-  <>
-    <Form>
-        <Row>
-          <Col>
-            <Form.Control onChange={initailInputValue} placeholder="Task Name" name="" value="text" />
-          </Col>
-          <Col>
-            <Form.Control  onChange={initailInputValue} placeholder="hrs" name="" value="number" />
-          </Col>
-          <Col><Button variant="outline-primary">Add</Button></Col>
-        </Row>
-      </Form>
-
-    </>
+       
+            
+            <Form  onSubmit={handleOnSubmit}>
+  <Row>
+    <Col>
+      <Form.Control placeholder="Task Name" onChange={handleOnChange}  value={task.title} name="title" required/>
+    </Col>
+    <Col>
+      <Form.Control   placeholder="Number of hours" value={task.hr} required
+       onChange={handleOnChange}  name="hr" />
+    </Col>
+    <Col>  <Button variant="primary" type="submit">
+    Add Task
+  </Button></Col>
+  </Row>
+</Form>
+       
     )
 }

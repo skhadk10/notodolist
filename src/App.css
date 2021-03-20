@@ -1,5 +1,9 @@
-.App {
-  background-color: rgb(49, 124, 118);
+.main {
+  background: grey;
+  min-height: 100vh;
+}
 
-  height: 80vh;
+input:checked + label {
+  color: red;
+  text-decoration: line-through;
 }

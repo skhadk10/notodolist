@@ -1,38 +1,82 @@
-import React from 'react'
-import { Table } from 'react-bootstrap';
+import React,{useState} from 'react'
+import {Card,Button,Table, InputGroup} from 'react-bootstrap';
 
-export const NotToDoList = () => {
+export const NoToDoList = ({noToDoList,markAsToDo,handleonChange1NOtToDO}) => {
+  // removing Data
+  // const [checkBox, setcheckBox] = useState([])
+  
+  // const handleOnCheckbox=e=>{
+  //     const{checked,value}=e.target
+  //     setcheckBox({...checkBox,[checked]:value})
+      
+  
+  
+//   const handleOnCheck=e=>{
+//   e.preventDefault();
+
+//   checkBoxRemove(checkBox);
+// }
+
+
+  const totaSavedTime= noToDoList.reduce((subTtl, item)=>
+     {return subTtl+= +item.hr},0);
+  
     return (
-        <div>
-            <Table striped bordered hover>
+        <>
+             <h2>Not To Do list</h2>
+      <Table striped bordered hover size="lg">
   <thead>
     <tr>
-      <th>#</th>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>Username</th>
+   
+      <th>Task</th>
+      <th>Hours</th>
+      <th>Action</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>1</td>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td colSpan="2">Larry the Bird</td>
-      <td>@twitter</td>
-    </tr>
+      {noToDoList.map((row,i)=>
+    <tr key={i}>
+      <td><input type="checkbox" defaultValue={i} onChange={handleonChange1NOtToDO}  />{""}</td>
+      <label>{row?.title}</label>
+      <td>{row?.hr}</td>
+      <td><button onClick={() => markAsToDo(i)}>Mark as to do</button></td>
+    
+    </tr>)}
+  
+   
   </tbody>
 </Table>
-        </div>
+your saved= {totaSavedTime} hours
+</>
+    )
+ 
+
+    return (
+        <>
+             <h2>Not To Do list</h2>
+      <Table striped bordered hover size="lg">
+  <thead>
+    <tr>
+     
+      <th>Task</th>
+      <th>Hours</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+      {noToDoList.map((row,i)=>
+    <tr key={i}>
+      <td>{row?.title}</td>
+      <td>{row?.hr}</td>
+      <td><button onClick={() => markAsToDo(i)}>Mark as to do</button></td>
+    
+    </tr>)}
+  
+   
+  </tbody>
+</Table>
+your saved= {totaSavedTime} hours
+
+</>
     )
 }
