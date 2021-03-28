@@ -4,7 +4,7 @@ import {Card,Button,Table,InputGroup,FormControl} from 'react-bootstrap';
 export const TaskLists = ({taskLists,handOnMarkAsNotToDo,handleonChange1}) => {
     return (
         <>
-        <h2>Task Lists</h2>
+        <h2>Task Lists <i class="fas fa-info-circle"></i></h2>
       <Table striped bordered hover size="lg">
   <thead>
     <tr>
@@ -18,11 +18,11 @@ export const TaskLists = ({taskLists,handOnMarkAsNotToDo,handleonChange1}) => {
       {taskLists.map((row,i)=>
     <tr key={i}>
       <td> 
-      <input type="checkbox" defaultValue={i} onChange={handleonChange1}  />{""}
+      <input  type="checkbox" defaultValue={i} onChange={handleonChange1}  />{""}
     </td>
       <td>{row?.title}</td>
       <td>{row?.hr}</td>
-      <td><button onClick={() => handOnMarkAsNotToDo(i)}>Mark as not to</button></td>
+      <td><button  data-toggle="tooltip" data-placement="top" title="it move to Not TO DO List" onClick={() => handOnMarkAsNotToDo(i)}>Mark as not to</button></td>
     
     </tr>)}
   

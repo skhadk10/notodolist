@@ -12,7 +12,7 @@ export const AddForm = ({handleOnAddTask}) => {
     {
 
 const {name,value}=e.target;
-setTask({...task,[name]:value,}
+setTask({...task,[name]:name==='hr'? +value:value,}
 )
     }
     const handleOnSubmit =e =>{
@@ -26,10 +26,10 @@ setTask({...task,[name]:value,}
             <Form  onSubmit={handleOnSubmit}>
   <Row>
     <Col>
-      <Form.Control placeholder="Task Name" onChange={handleOnChange}  value={task.title} name="title" required/>
+      <Form.Control data-toggle="tooltip" data-placement="top" title="AddTask Please"  placeholder="Task Name" onChange={handleOnChange}  value={task.title} name="title" required/>
     </Col>
     <Col>
-      <Form.Control   placeholder="Number of hours" value={task.hr} required
+      <Form.Control data-toggle="tooltip" data-placement="top" title="Add HOur Only"   placeholder="Number of hours" value={task.hr} required
        onChange={handleOnChange}  name="hr" />
     </Col>
     <Col>  <Button variant="primary" type="submit">

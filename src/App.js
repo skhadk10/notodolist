@@ -1,13 +1,12 @@
 import logo from './logo.svg';
 import React,{useState} from 'react'
 
-import {Container,Row,Col, Button} from 'react-bootstrap';
+import {Container,Row,Col, Button,Alert} from 'react-bootstrap';
 import './App.css';
 import { AddForm } from './component/AddForm';
 import { TaskLists } from './component/ToDoList';
 import { NoToDoList } from './component/NotToDoList';
-import { waitForElementToBeRemoved } from '@testing-library/dom';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const initialTaskLists=[
 
@@ -16,7 +15,7 @@ const initialTaskLists=[
 const App = () => {
   const [taskLists, setTaskLists] = useState(initialTaskLists);
   const [noToDoList, setNoToDoList] = useState([])
-  const [totalHrs, setTotalHrs] = useState(0);
+  // const [totalHrs, setTotalHrs] = useState(0);
   const [itemTODelete, setItemTODelete] = useState([])
   const [notoDeleteItem, setnotoDeleteItem] = useState([])
   // // total function
@@ -28,6 +27,12 @@ const App = () => {
   //   const total=totalFrmNotToDo+totalFrmNotToDo
   // }
 
+
+    // calculate total hours
+    const toDOTotalHrs= taskLists.reduce((subTtl,item)=>{return subTtl +item.hr },0)
+    const nottoDOTotalHrs= noToDoList.reduce((subTtl,item)=>{return subTtl +item.hr },0)
+    const totalHrs= toDOTotalHrs + nottoDOTotalHrs;
+
   const handOnAddTask= (frmDt) =>{
     console.log("Data type check>>", typeof(frmDt.hr))
     if(
@@ -35,7 +40,7 @@ const App = () => {
     {
       return alert("you have exceed the total allocated time for the week")
     }
-    setTotalHrs(Number(frmDt.hr)+totalHrs);
+    // setTotalHrs(Number(frmDt.hr)+totalHrs);
 
     setTaskLists([...taskLists,frmDt]);
     console.log(setTaskLists)
@@ -107,7 +112,6 @@ const App = () => {
       const newArg=noToDoList.filter((item,i)=>!notoDeleteItem.includes(i))
       setTaskLists(newArg)
   }
-
   
 
 const deleteItem=()=>{
@@ -116,15 +120,7 @@ const deleteItem=()=>{
 
   deleteItemFromNOtTODOList();
   deleteItemfromTaskList()
-   // total hours from new Arg
-  //  setItemTODelete([]);
-  //  const newHrTtl=newArg.reduce((subTtl,item)=>{
-  //    return subTtl+= item.hr;
-  //  },0)
    
-  //  setTotalHrs(newHrTtl);
-
-  
  }
 }
   
@@ -152,8 +148,18 @@ return (
   <NoToDoList  noToDoList={noToDoList} handleonChange1NOtToDO={handleonChange1NOtToDO}
   markAsToDo={markAsToDo} />
   </Col>
-  <Col> your allocated  Time={totalHrs}/168 hours</Col>
 </Row>
+
+<Row> <Alert variant="primary">
+  <Alert.Heading>Hey, nice to see you</Alert.Heading>
+  <p>
+    your allocated  Time={totalHrs}/168 hours
+  </p>
+  <hr />
+  
+</Alert>
+  
+  </Row>
 {/* list items */}
 
 </Container>

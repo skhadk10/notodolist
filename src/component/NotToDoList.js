@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import {Card,Button,Table, InputGroup} from 'react-bootstrap';
+import {Card,Button,Table, InputGroup,Alert, Tooltip,OverlayTrigger} from 'react-bootstrap';
 
 export const NoToDoList = ({noToDoList,markAsToDo,handleonChange1NOtToDO}) => {
   // removing Data
@@ -23,7 +23,7 @@ export const NoToDoList = ({noToDoList,markAsToDo,handleonChange1NOtToDO}) => {
   
     return (
         <>
-             <h2>Not To Do list</h2>
+             <h2>Not To Do list <i  style={{backgroundColor:"yellow",borderRadius: "5px"}}class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="it move to TO DO List"></i></h2>
       <Table striped bordered hover size="lg">
   <thead>
     <tr>
@@ -39,44 +39,27 @@ export const NoToDoList = ({noToDoList,markAsToDo,handleonChange1NOtToDO}) => {
       <td><input type="checkbox" defaultValue={i} onChange={handleonChange1NOtToDO}  />{""}</td>
       <label>{row?.title}</label>
       <td>{row?.hr}</td>
-      <td><button onClick={() => markAsToDo(i)}>Mark as to do</button></td>
+      <td>
+        <button data-toggle="tooltip" data-placement="top" title="it move to TO DO List"  onClick={() => markAsToDo(i)}>
+     
+        Mark As TO DO
+     </button>   </td>
     
     </tr>)}
   
    
   </tbody>
 </Table>
-your saved= {totaSavedTime} hours
+<Alert variant="success">
+  <Alert.Heading>Hey, nice to see you</Alert.Heading>
+  <p>
+    your saved= {totaSavedTime} hours
+  </p>
+  <hr />
+  
+</Alert>
 </>
     )
  
 
-    return (
-        <>
-             <h2>Not To Do list</h2>
-      <Table striped bordered hover size="lg">
-  <thead>
-    <tr>
-     
-      <th>Task</th>
-      <th>Hours</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-      {noToDoList.map((row,i)=>
-    <tr key={i}>
-      <td>{row?.title}</td>
-      <td>{row?.hr}</td>
-      <td><button onClick={() => markAsToDo(i)}>Mark as to do</button></td>
-    
-    </tr>)}
-  
-   
-  </tbody>
-</Table>
-your saved= {totaSavedTime} hours
-
-</>
-    )
 }
