@@ -1,12 +1,13 @@
 import logo from "./logo.svg";
 import React, { useState } from "react";
-
-import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import axios from "axios";
+import { Container, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import "./App.css";
 import { AddForm } from "./component/AddForm";
 import { TaskLists } from "./component/ToDoList";
 import { NoToDoList } from "./component/NotToDoList";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { createTask, getTaskLists } from "./taskApi.js";
 
 const initialTaskLists = [];
 
@@ -16,6 +17,12 @@ const App = () => {
   // const [totalHrs, setTotalHrs] = useState(0);
   const [itemTODelete, setItemTODelete] = useState([]);
   const [notoDeleteItem, setnotoDeleteItem] = useState([]);
+
+  const [response, setResponse] = useState({
+    status: "",
+    message: "",
+  });
+  const [isPending, setIsPending] = useState(false);
   // // total function
   // const calculateTotalHours=() =>{
   //   //tasklist
@@ -34,15 +41,25 @@ const App = () => {
   }, 0);
   const totalHrs = toDOTotalHrs + nottoDOTotalHrs;
 
-  const handOnAddTask = (frmDt) => {
+  const handOnAddTask = async (frmDt) => {
     console.log("Data type check>>", typeof frmDt.hr);
     if (totalHrs + +frmDt.hr > 168) {
       return alert("you have exceed the total allocated time for the week");
     }
     // setTotalHrs(Number(frmDt.hr)+totalHrs);
+    //  replace the
+    const res = await createTask(frmDt);
+    setResponse(res);
+    setIsPending(false);
+    console.log(res);
+    if (res.status === "success") {
+      const fetchTask = await getTaskLists();
+      fetchTask.length && setTaskLists(fetchTask);
 
-    setTaskLists([...taskLists, frmDt]);
-    console.log(setTaskLists);
+      console.log();
+    }
+
+    // setTaskLists([...taskLists, frmDt]);
   };
 
   const handOnMarkAsNotToDo = (index) => {
@@ -116,7 +133,16 @@ const App = () => {
           </Col>
         </Row>
         <hr></hr>
+        {/* success and error massage */}
+        {response.message && (
+          <Alert
+            varient={response.message === "success" ? "primary" : "denger"}
+          >
+            {response.message}
+          </Alert>
+        )}
 
+        {isPending && <Spinner animation="border" variant="primary" />}
         <AddForm handleOnAddTask={handOnAddTask} />
         <hr></hr>
         <Row>
