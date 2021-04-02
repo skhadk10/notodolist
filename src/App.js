@@ -1,171 +1,228 @@
-import logo from './logo.svg';
-import React,{useState} from 'react'
+import logo from "./logo.svg";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Container, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
+import "./App.css";
+import { AddForm } from "./component/AddForm";
+import { TaskLists } from "./component/ToDoList";
+import { NoToDoList } from "./component/NotToDoList";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  createTask,
+  deletTaskLists,
+  getTaskLists,
+  switchTask,
+} from "./taskApi.js";
 
-import {Container,Row,Col, Button,Alert} from 'react-bootstrap';
-import './App.css';
-import { AddForm } from './component/AddForm';
-import { TaskLists } from './component/ToDoList';
-import { NoToDoList } from './component/NotToDoList';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-const initialTaskLists=[
-
-]
+const initialTaskLists = [];
 
 const App = () => {
   const [taskLists, setTaskLists] = useState(initialTaskLists);
-  const [noToDoList, setNoToDoList] = useState([])
+  const [noToDoList, setNoToDoList] = useState([]);
   // const [totalHrs, setTotalHrs] = useState(0);
-  const [itemTODelete, setItemTODelete] = useState([])
-  const [notoDeleteItem, setnotoDeleteItem] = useState([])
+  const [itemTODelete, setItemTODelete] = useState([]);
+  const [notoDeleteItem, setnotoDeleteItem] = useState([]);
+
+  const [response, setResponse] = useState({
+    status: "",
+    message: "",
+  });
+  const [isPending, setIsPending] = useState(false);
+
+  useEffect(() => {
+    const initialTask = async () => {
+      const fetchTasks = await getTaskLists();
+      if (fetchTasks?.length) {
+        const todo = fetchTasks.filter((row) => row.todo);
+        const nottodo = fetchTasks.filter((row) => !row.todo);
+
+        setTaskLists(todo);
+        setNoToDoList(nottodo);
+      }
+    };
+    initialTask();
+  }, []);
   // // total function
   // const calculateTotalHours=() =>{
   //   //tasklist
-  //   const totalFrmToDo=0; 
+  //   const totalFrmToDo=0;
   //   // nottodolist
   //   const totalFrmNotToDo=0;
   //   const total=totalFrmNotToDo+totalFrmNotToDo
   // }
 
+  // calculate total hours
+  const toDOTotalHrs = taskLists.reduce((subTtl, item) => {
+    return subTtl + item.hr;
+  }, 0);
 
-    // calculate total hours
-    const toDOTotalHrs= taskLists.reduce((subTtl,item)=>{return subTtl +item.hr },0)
-    const nottoDOTotalHrs= noToDoList.reduce((subTtl,item)=>{return subTtl +item.hr },0)
-    const totalHrs= toDOTotalHrs + nottoDOTotalHrs;
+  const nottoDOTotalHrs = noToDoList.reduce((subTtl, item) => {
+    return subTtl + item.hr;
+  }, 0);
 
-  const handOnAddTask= (frmDt) =>{
-    console.log("Data type check>>", typeof(frmDt.hr))
-    if(
-      totalHrs+ +frmDt.hr>168)
-    {
-      return alert("you have exceed the total allocated time for the week")
+  const totalHrs = toDOTotalHrs + nottoDOTotalHrs;
+
+  const getAllTask = async () => {
+    const fetchTasks = (await getTaskLists()) || [];
+
+    const todo = fetchTasks.filter((row) => row.todo);
+    const nottodo = fetchTasks.filter((row) => !row.todo);
+
+    setTaskLists(todo);
+    setNoToDoList(nottodo);
+  };
+
+  const handOnAddTask = async (frmDt) => {
+    if (totalHrs + +frmDt.hr > 168) {
+      return alert("you have exceed the total allocated time for the week");
     }
+
     // setTotalHrs(Number(frmDt.hr)+totalHrs);
+    //  replace the
 
-    setTaskLists([...taskLists,frmDt]);
-    console.log(setTaskLists)
-  }
+    setIsPending(true);
+    const res = await createTask(frmDt);
+    setResponse(res);
+    setIsPending(false);
+    console.log(res);
+    if (res.status === "success") {
+      getAllTask();
+    }
+  };
 
+  const updateTask = async (toUpdate) => {
+    setIsPending(true);
+    const result = await switchTask(toUpdate);
+    setResponse(result);
+    setIsPending(true);
+    getAllTask();
+  };
 
+  const handOnMarkAsNotToDo = (_id) => {
+    const toUpdate = {
+      _id,
+      todo: false,
+    };
+    updateTask(toUpdate);
+  };
 
-  const handOnMarkAsNotToDo= index =>{
-   
-    const item=taskLists.splice(index,1)
-    setNoToDoList([...noToDoList,item[0]]);
-    
-     }
+  const markAsToDo = (_id) => {
+    const toUpdate = {
+      _id,
+      todo: true,
+    };
+    updateTask(toUpdate);
+  };
 
+  //  Adding and deleting value from list
+  const handleonChange1 = (e) => {
+    const { checked, value } = e.target;
 
-     const markAsToDo = index =>{
-       const item =noToDoList[index];
-       const newArg= noToDoList.filter((item,i)=>i!== index)
-       setNoToDoList(newArg);
-       setTaskLists([...taskLists,item]);
+    if (checked) {
+      return setItemTODelete([...itemTODelete, value]);
+    }
 
-     }
-
-    
-//  Adding and deleting value from list
-   const handleonChange1=e=>{
-     const{checked,value}=e.target;
-
-     if(checked){
-       return setItemTODelete([...itemTODelete, +value])
-     }
-
-
-    // remove from array 
-    const newlist=itemTODelete.filter(item=> item !=value);
-    setItemTODelete(newlist)
-   }
-     
-
+    // remove from array
+    const newlist = itemTODelete.filter((item) => item != value);
+    setItemTODelete(newlist);
+  };
 
   //  delete  item when delete button is clicked
-    const deleteItemfromTaskList=()=>
-    {
-      
-      const newArg=taskLists.filter((item,i)=>!itemTODelete.includes(i))
-      setNoToDoList(newArg)
-        
-  }
+  const deleteItemfromTaskList = () => {
+    const newArg = taskLists.filter((item, i) => !itemTODelete.includes(i));
+    setTaskLists(newArg);
+    setItemTODelete([]);
+  };
 
+  //  Adding and deleting value from list
+  const handleonChange1NOtToDO = (e) => {
+    const { checked, value } = e.target;
+    console.log(checked, value);
+    if (checked) {
+      return setnotoDeleteItem([...notoDeleteItem, value]);
+    }
 
-  
-//  Adding and deleting value from list
-   const handleonChange1NOtToDO=e=>{
-     const{checked,value}=e.target;
+    // remove from array
+    const newlist = notoDeleteItem.filter((item) => item != value);
+    setnotoDeleteItem(newlist);
+  };
 
-     if(checked) 
-     {
-       return setItemTODelete([...notoDeleteItem, +value])
-     }
-
-    // remove from array 
-    const newlist=notoDeleteItem.filter(item=> item !=value);
-    setnotoDeleteItem(newlist)
-   }
-     
   //  delete Not TO DO item when delete button is clicked
-    const deleteItemFromNOtTODOList=()=>
+  const deleteItemFromNOtTODOList = () => {
+    const newArg = noToDoList.filter((item, i) => !notoDeleteItem.includes(i));
+    setNoToDoList(newArg);
+    setnotoDeleteItem([]);
+  };
+
+  const deleteItem = async () => {
+    if (window.confirm("are you sure you want to delete the selected items?"));
     {
-      const newArg=noToDoList.filter((item,i)=>!notoDeleteItem.includes(i))
-      setTaskLists(newArg)
-  }
-  
+      const deleteArg = itemTODelete.concat(notoDeleteItem);
 
-const deleteItem=()=>{
-  if(window.confirm("are you sure you want to delete the selected items?"));
-      {
+      const result = await deletTaskLists(deleteArg);
+      setResponse(result);
+      getAllTask();
+    }
+  };
 
-  deleteItemFromNOtTODOList();
-  deleteItemfromTaskList()
-   
- }
-}
-  
-
-return (
+  console.log(taskLists, noToDoList);
+  return (
     <div className="main">
-<Container variant="primary" >
-  <Row>
-    <Col>
-    <div className="text-center pt-5"><h1>Not To Do List</h1></div>
-    </Col>
-  </Row>
-  <hr></hr>
+      <Container variant="primary">
+        <Row>
+          <Col>
+            <div className="text-center pt-5">
+              <h1>Not To Do List</h1>
+            </div>
+          </Col>
+        </Row>
+        <hr></hr>
+        {/* success and error massage */}
+        {response.message && (
+          <Alert
+            varient={response.message === "success" ? "primary" : "denger"}
+          >
+            {response.message}
+          </Alert>
+        )}
 
-<AddForm handleOnAddTask={handOnAddTask}
-/>
-<hr></hr>
-<Row>
-  <Col>
-  <TaskLists taskLists={taskLists}
-  handOnMarkAsNotToDo={handOnMarkAsNotToDo} handleonChange1={handleonChange1}
-  />
-  </Col>
-  <Col>
-  <NoToDoList  noToDoList={noToDoList} handleonChange1NOtToDO={handleonChange1NOtToDO}
-  markAsToDo={markAsToDo} />
-  </Col>
-</Row>
+        {isPending && <Spinner animation="border" variant="primary" />}
+        <AddForm handleOnAddTask={handOnAddTask} />
+        <hr></hr>
+        <Row>
+          <Col>
+            <TaskLists
+              taskLists={taskLists}
+              handOnMarkAsNotToDo={handOnMarkAsNotToDo}
+              handleonChange1={handleonChange1}
+              itemTODelete={itemTODelete}
+            />
+          </Col>
+          <Col>
+            <NoToDoList
+              noToDoList={noToDoList}
+              handleonChange1NOtToDO={handleonChange1NOtToDO}
+              markAsToDo={markAsToDo}
+              notoDeleteItem={notoDeleteItem}
+            />
+          </Col>
+        </Row>
 
-<Row> <Alert variant="primary">
-  <Alert.Heading>Hey, nice to see you</Alert.Heading>
-  <p>
-    your allocated  Time={totalHrs}/168 hours
-  </p>
-  <hr />
-  
-</Alert>
-  
-  </Row>
-{/* list items */}
-
-</Container>
-<Button  onClick={deleteItem} variant="primary">Delete</Button>
+        <Row>
+          {" "}
+          <Alert variant="primary">
+            <Alert.Heading>Hey, nice to see you</Alert.Heading>
+            <p>your allocated Time={totalHrs}/168 hours</p>
+            <hr />
+          </Alert>
+        </Row>
+        {/* list items */}
+      </Container>
+      <Button onClick={deleteItem} variant="primary">
+        Delete
+      </Button>
     </div>
   );
-}
+};
 
 export default App;
