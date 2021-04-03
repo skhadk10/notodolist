@@ -1,5 +1,6 @@
 import logo from "./logo.svg";
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Container, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import "./App.css";
@@ -13,89 +14,46 @@ import {
   getTaskLists,
   switchTask,
 } from "./taskApi.js";
+// from actions
+import { addTask, fetchTaskLists } from "./component/taskAction.js";
 
 const initialTaskLists = [];
 
 const App = () => {
-  const [taskLists, setTaskLists] = useState(initialTaskLists);
-  const [noToDoList, setNoToDoList] = useState([]);
-  // const [totalHrs, setTotalHrs] = useState(0);
+  const dispatch = useDispatch();
+
+  const { isPending, status, message, totalHrs } = useSelector(
+    (state) => state.task
+  );
+
   const [itemTODelete, setItemTODelete] = useState([]);
   const [notoDeleteItem, setnotoDeleteItem] = useState([]);
 
-  const [response, setResponse] = useState({
+  const [hdhdhd, setResponse] = useState({
     status: "",
     message: "",
   });
-  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const initialTask = async () => {
-      const fetchTasks = await getTaskLists();
-      if (fetchTasks?.length) {
-        const todo = fetchTasks.filter((row) => row.todo);
-        const nottodo = fetchTasks.filter((row) => !row.todo);
-
-        setTaskLists(todo);
-        setNoToDoList(nottodo);
-      }
+      dispatch(fetchTaskLists());
     };
-    initialTask();
   }, []);
-  // // total function
-  // const calculateTotalHours=() =>{
-  //   //tasklist
-  //   const totalFrmToDo=0;
-  //   // nottodolist
-  //   const totalFrmNotToDo=0;
-  //   const total=totalFrmNotToDo+totalFrmNotToDo
-  // }
-
-  // calculate total hours
-  const toDOTotalHrs = taskLists.reduce((subTtl, item) => {
-    return subTtl + item.hr;
-  }, 0);
-
-  const nottoDOTotalHrs = noToDoList.reduce((subTtl, item) => {
-    return subTtl + item.hr;
-  }, 0);
-
-  const totalHrs = toDOTotalHrs + nottoDOTotalHrs;
-
-  const getAllTask = async () => {
-    const fetchTasks = (await getTaskLists()) || [];
-
-    const todo = fetchTasks.filter((row) => row.todo);
-    const nottodo = fetchTasks.filter((row) => !row.todo);
-
-    setTaskLists(todo);
-    setNoToDoList(nottodo);
-  };
 
   const handOnAddTask = async (frmDt) => {
     if (totalHrs + +frmDt.hr > 168) {
       return alert("you have exceed the total allocated time for the week");
     }
 
-    // setTotalHrs(Number(frmDt.hr)+totalHrs);
-    //  replace the
-
-    setIsPending(true);
-    const res = await createTask(frmDt);
-    setResponse(res);
-    setIsPending(false);
-    console.log(res);
-    if (res.status === "success") {
-      getAllTask();
-    }
+    dispatch(addTask(frmDt));
   };
 
   const updateTask = async (toUpdate) => {
-    setIsPending(true);
+    // setIsPending(true);
     const result = await switchTask(toUpdate);
     setResponse(result);
-    setIsPending(true);
-    getAllTask();
+    // setIsPending(true);
+    // getAllTask();
   };
 
   const handOnMarkAsNotToDo = (_id) => {
@@ -127,17 +85,10 @@ const App = () => {
     setItemTODelete(newlist);
   };
 
-  //  delete  item when delete button is clicked
-  const deleteItemfromTaskList = () => {
-    const newArg = taskLists.filter((item, i) => !itemTODelete.includes(i));
-    setTaskLists(newArg);
-    setItemTODelete([]);
-  };
-
   //  Adding and deleting value from list
   const handleonChange1NOtToDO = (e) => {
     const { checked, value } = e.target;
-    console.log(checked, value);
+
     if (checked) {
       return setnotoDeleteItem([...notoDeleteItem, value]);
     }
@@ -147,13 +98,6 @@ const App = () => {
     setnotoDeleteItem(newlist);
   };
 
-  //  delete Not TO DO item when delete button is clicked
-  const deleteItemFromNOtTODOList = () => {
-    const newArg = noToDoList.filter((item, i) => !notoDeleteItem.includes(i));
-    setNoToDoList(newArg);
-    setnotoDeleteItem([]);
-  };
-
   const deleteItem = async () => {
     if (window.confirm("are you sure you want to delete the selected items?"));
     {
@@ -161,11 +105,9 @@ const App = () => {
 
       const result = await deletTaskLists(deleteArg);
       setResponse(result);
-      getAllTask();
     }
   };
 
-  console.log(taskLists, noToDoList);
   return (
     <div className="main">
       <Container variant="primary">
@@ -178,21 +120,18 @@ const App = () => {
         </Row>
         <hr></hr>
         {/* success and error massage */}
-        {response.message && (
-          <Alert
-            varient={response.message === "success" ? "primary" : "denger"}
-          >
-            {response.message}
+        {message && (
+          <Alert varient={status === "success" ? "primary" : "denger"}>
+            {message}
           </Alert>
         )}
 
         {isPending && <Spinner animation="border" variant="primary" />}
-        <AddForm handleOnAddTask={handOnAddTask} />
+        <AddForm handOnAddTask={handOnAddTask} />
         <hr></hr>
         <Row>
           <Col>
             <TaskLists
-              taskLists={taskLists}
               handOnMarkAsNotToDo={handOnMarkAsNotToDo}
               handleonChange1={handleonChange1}
               itemTODelete={itemTODelete}
@@ -200,7 +139,6 @@ const App = () => {
           </Col>
           <Col>
             <NoToDoList
-              noToDoList={noToDoList}
               handleonChange1NOtToDO={handleonChange1NOtToDO}
               markAsToDo={markAsToDo}
               notoDeleteItem={notoDeleteItem}

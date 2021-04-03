@@ -1,12 +1,13 @@
 import React from "react";
 import { Card, Button, Table, InputGroup, FormControl } from "react-bootstrap";
-
+import { useSelector } from "react-redux";
 export const TaskLists = ({
-  taskLists,
   itemTODelete,
   handOnMarkAsNotToDo,
   handleonChange1,
 }) => {
+  const { taskLists } = useSelector((state) => state.task);
+
   return (
     <>
       <h2>
@@ -22,7 +23,7 @@ export const TaskLists = ({
           </tr>
         </thead>
         <tbody>
-          {taskLists.map((row, i) => (
+          {taskLists?.map((row, i) => (
             <tr key={i}>
               <td>
                 <input

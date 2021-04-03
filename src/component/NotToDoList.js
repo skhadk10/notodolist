@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Card,
   Button,
@@ -10,27 +11,12 @@ import {
 } from "react-bootstrap";
 
 export const NoToDoList = ({
-  noToDoList,
+  totaSavedTime,
   notoDeleteItem,
   markAsToDo,
   handleonChange1NOtToDO,
 }) => {
-  // removing Data
-  // const [checkBox, setcheckBox] = useState([])
-
-  // const handleOnCheckbox=e=>{
-  //     const{checked,value}=e.target
-  //     setcheckBox({...checkBox,[checked]:value})
-
-  //   const handleOnCheck=e=>{
-  //   e.preventDefault();
-
-  //   checkBoxRemove(checkBox);
-  // }
-
-  const totaSavedTime = noToDoList.reduce((subTtl, item) => {
-    return (subTtl += +item.hr);
-  }, 0);
+  const { noToDoList } = useSelector((state) => state.task);
 
   return (
     <>
@@ -53,7 +39,7 @@ export const NoToDoList = ({
           </tr>
         </thead>
         <tbody>
-          {noToDoList.map((row, i) => (
+          {noToDoList?.map((row, i) => (
             <tr key={i}>
               <td>
                 <input
